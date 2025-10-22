@@ -1,0 +1,126 @@
+{
+  "name": "webhook+agent with openai",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "a244ea82-0e50-4cad-a4bb-6a6d52426ee6",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -368,
+        -96
+      ],
+      "id": "fb4b9536-42d7-4bd9-b5aa-640ffaeaeef5",
+      "name": "Webhook",
+      "webhookId": "a244ea82-0e50-4cad-a4bb-6a6d52426ee6"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query.name }}",
+        "options": {
+          "systemMessage": "=You are a helpful assistant of writing a creative story of given input name {{ $json.query.name }} of user,but story are funny not more then 5 lines "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -144,
+        -96
+      ],
+      "id": "d4e3f381-fcf1-4ae7-9f1e-c8f2686b6f90",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-3.5-turbo",
+          "mode": "list",
+          "cachedResultName": "gpt-3.5-turbo"
+        },
+        "options": {
+          "maxTokens": 50
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -144,
+        112
+      ],
+      "id": "e3ae5376-27e5-4110-8d67-9aaba72c85af",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "Qy4W9DL3T8xzWCWE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        208,
+        -96
+      ],
+      "id": "86d8850a-7752-4a38-8ebc-cb4500216a8f",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7c6c0c09-cbcb-4bcf-9123-f45c09981f43",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8a3cfde5ee8cef230f97379ba98891a5b510f8f132c0b74323507fbd19f95eb6"
+  },
+  "id": "waPW8HFnd8NbmGaw",
+  "tags": []
+}
