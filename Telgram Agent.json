@@ -1,0 +1,205 @@
+{
+  "name": "Telgram Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "You have access to company data retrieved from Google Sheets.\nWhen a user asks for a customer’s contact info, read the provided sheet data and respond with only that info.\nIf the data does not exist, say “Record not found.”\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -560,
+        -128
+      ],
+      "id": "939dd310-eed5-4b08-b0a3-4c425f3056a5",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -464,
+        64
+      ],
+      "id": "b695c006-f996-46c2-8aee-0142bb23c261",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -816,
+        -128
+      ],
+      "id": "87e5eca1-e2a1-4fc7-97ab-e98f7ab24518",
+      "name": "Telegram Trigger",
+      "webhookId": "6f6d2a49-9cdc-4a87-90f9-bfa948fc31c1",
+      "credentials": {
+        "telegramApi": {
+          "id": "HmCyZTLiJHJ0fYju",
+          "name": "Telegram tawnagar_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1mCUFPnnXzBzonPtoJO5L8FPl2hZo34BdtOysOQlGBqY",
+          "mode": "list",
+          "cachedResultName": "Electrcity Bill",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mCUFPnnXzBzonPtoJO5L8FPl2hZo34BdtOysOQlGBqY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mCUFPnnXzBzonPtoJO5L8FPl2hZo34BdtOysOQlGBqY/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -304,
+        96
+      ],
+      "id": "565906d1-050a-4388-a169-2f454fd612fb",
+      "name": "contact database",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zqKcaHvv4R0ygb3D",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-image",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -704,
+        80
+      ],
+      "id": "bba55900-eba4-44f4-8117-9c762be5be58",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "eOYW3hFV1pF7nJv2",
+          "name": "Google Gemini(PaLM) 22oct Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -208,
+        -128
+      ],
+      "id": "98290364-b0c0-4dd6-b180-a45f4ae03dd1",
+      "name": "Response",
+      "webhookId": "d3bdce92-2e06-47b7-b274-5d3ecf90d15b",
+      "credentials": {
+        "telegramApi": {
+          "id": "HmCyZTLiJHJ0fYju",
+          "name": "Telegram tawnagar_bot"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "contact database": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d683e0fe-4530-422e-b0af-a7a11ca9eba7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8a3cfde5ee8cef230f97379ba98891a5b510f8f132c0b74323507fbd19f95eb6"
+  },
+  "id": "LQKyMBXJ0faP5x0W",
+  "tags": []
+}
